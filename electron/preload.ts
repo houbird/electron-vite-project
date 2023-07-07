@@ -1,10 +1,16 @@
-const { contextBridge, ipcRenderer } = require('electron');
+import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('api', {
-  runCommand: async (command) => {
-    return await ipcRenderer.invoke('runCommand', command);
-  },
-});
+contextBridge.exposeInMainWorld(
+  'electron',
+  {
+    exec: (command, callback) => {
+      ipcRenderer.send('exec-command', command);
+      ipcRenderer.once('exec-command-response', (event, { error, stdout, stderr }) => {
+        callback(error, stdout, stderr);
+      });
+    }
+  }
+)
 
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
   return new Promise(resolve => {

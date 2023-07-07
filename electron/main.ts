@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, contextBridge } from 'electron';
+import { app, BrowserWindow, ipcMain, contextBridge, ipcRenderer } from 'electron';
 import path from 'node:path';
 
 process.env.DIST = path.join(__dirname, '../dist');
@@ -18,16 +18,10 @@ function createWindow() {
     },
   });
 
-  ipcMain.handle('runCommand', async (event, command) => {
+  ipcMain.on('exec-command', (event, command) => {
     const { exec } = require('child_process');
-    return new Promise((resolve, reject) => {
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(stdout.trim());
-        }
-      });
+    exec(command, (error, stdout, stderr) => {
+      event.reply('exec-command-response', { error, stdout, stderr });
     });
   });
 
@@ -44,9 +38,10 @@ app.on('window-all-closed', () => {
 
 app.whenReady().then(() => {
   createWindow();
-  contextBridge.exposeInMainWorld('api', {
-    runCommand: async (command: string) => {
-      return await ipcMain.invoke('runCommand', command);
-    },
-  });
+  contextBridge.exposeInMainWorld(
+    'electron',
+    {
+      doThing: () => ipcRenderer.send('do-a-thing')
+    }
+  )
 });

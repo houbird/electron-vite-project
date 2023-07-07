@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from './component/Button';
-
-const { exec } = window.require('child_process');
+const { ipcRenderer } = window.require('electron');
 
 const App: React.FC = () => {
   const handleButtonClick = () => {
-    exec('whoami', (error: Error | null, stdout: string, stderr: string) => {
+    window.electron.exec('whoami', (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing command: ${error}`);
         return;
@@ -15,6 +14,19 @@ const App: React.FC = () => {
       alert(`Username: ${username}`);
     });
   };
+  
+
+  useEffect(() => {
+    ipcRenderer.on('exec-command-response', (event, { error, stdout, stderr }) => {
+      if (error) {
+        console.error(`Error executing command: ${error}`);
+        return;
+      }
+      const username = stdout.trim();
+      console.log(`Username: ${username}`);
+      alert(`Username: ${username}`);
+    });
+  }, []);
 
   return (
     <div>
