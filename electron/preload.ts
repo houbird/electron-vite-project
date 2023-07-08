@@ -3,50 +3,49 @@ import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld(
   'electron',
   {
-    send: (channel, data) => {
+    send: (id: string,channel: string, data: any): void => {
       // whitelist channels
-      let validChannels = ['exec-command'];
+      const validChannels = ['exec-command'];
       if (validChannels.includes(channel)) {
-        ipcRenderer.send(channel, data);
+        ipcRenderer.send(channel, { id, data });
       }
     },
-    receive: (channel, func) => {
-      let validChannels = ['exec-command-response'];
+    receive: (channel: string, func: (...args: unknown[]) => void): void => {
+      const validChannels = ['exec-command-response'];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender` 
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
+        ipcRenderer.on(channel, (_event, ...args: unknown[]) => func(...args));
       }
-    }
+    }    
   }
 );
 
-
-function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
+function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']): Promise<boolean> {
   return new Promise(resolve => {
     if (condition.includes(document.readyState)) {
-      resolve(true)
+      resolve(true);
     } else {
       document.addEventListener('readystatechange', () => {
         if (condition.includes(document.readyState)) {
-          resolve(true)
+          resolve(true);
         }
-      })
+      });
     }
-  })
+  });
 }
 
 const safeDOM = {
-  append(parent: HTMLElement, child: HTMLElement) {
+  append: (parent: HTMLElement, child: HTMLElement): void => {
     if (!Array.from(parent.children).find(e => e === child)) {
-      parent.appendChild(child)
+      parent.appendChild(child);
     }
   },
-  remove(parent: HTMLElement, child: HTMLElement) {
+  remove: (parent: HTMLElement, child: HTMLElement): void => {
     if (Array.from(parent.children).find(e => e === child)) {
-      parent.removeChild(child)
+      parent.removeChild(child);
     }
   },
-}
+};
 
 /**
  * https://tobiasahlin.com/spinkit
@@ -83,33 +82,33 @@ function useLoading() {
   z-index: 9;
 }
     `
-  const oStyle = document.createElement('style')
-  const oDiv = document.createElement('div')
-
-  oStyle.id = 'app-loading-style'
-  oStyle.innerHTML = styleContent
-  oDiv.className = 'app-loading-wrap'
-  oDiv.innerHTML = `<div class="${className}"><div></div></div>`
-
-  return {
-    appendLoading() {
-      safeDOM.append(document.head, oStyle)
-      safeDOM.append(document.body, oDiv)
-    },
-    removeLoading() {
-      safeDOM.remove(document.head, oStyle)
-      safeDOM.remove(document.body, oDiv)
-    },
+    const oStyle = document.createElement('style');
+    const oDiv = document.createElement('div');
+  
+    oStyle.id = 'app-loading-style';
+    oStyle.innerHTML = styleContent;
+    oDiv.className = 'app-loading-wrap';
+    oDiv.innerHTML = `<div class="${className}"><div></div></div>`;
+  
+    return {
+      appendLoading: (): void => {
+        safeDOM.append(document.head, oStyle);
+        safeDOM.append(document.body, oDiv);
+      },
+      removeLoading: (): void => {
+        safeDOM.remove(document.head, oStyle);
+        safeDOM.remove(document.body, oDiv);
+      },
+    };
   }
-}
-
-// ----------------------------------------------------------------------
-
-const { appendLoading, removeLoading } = useLoading()
-domReady().then(appendLoading)
-
-window.onmessage = ev => {
-  ev.data.payload === 'removeLoading' && removeLoading()
-}
-
-setTimeout(removeLoading, 4999)
+  
+  const { appendLoading, removeLoading } = useLoading();
+  domReady().then(appendLoading);
+  
+  window.onmessage = (ev: MessageEvent): void => {
+    if (ev.data.payload === 'removeLoading') {
+      removeLoading();
+    }
+  };
+  
+  setTimeout(removeLoading, 4999);

@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain, contextBridge, ipcRenderer } from 'electron';
+import { app, BrowserWindow, ipcMain, contextBridge } from 'electron';
 import path from 'node:path';
+import sudo from 'sudo-prompt';
 
 process.env.DIST = path.join(__dirname, '../dist');
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
@@ -14,14 +15,20 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      worldSafeExecuteJavaScript: true,
     },
   });
 
-  ipcMain.on('exec-command', (event, command) => {
-    const { exec } = require('child_process');
-    exec(command, (error, stdout, stderr) => {
-      event.reply('exec-command-response', { error, stdout, stderr });
+  ipcMain.on('exec-command', (event, { id, data }) => {
+    const options = {
+      name: 'Electron',
+    };
+
+    sudo.exec(data, options, (error, stdout, stderr) => {
+      if (error) {
+        event.reply('exec-command-response', { id, error, stdout, stderr });
+      } else {
+        event.reply('exec-command-response', { id, error: null, stdout, stderr });
+      }
     });
   });
 
@@ -41,7 +48,7 @@ app.whenReady().then(() => {
   contextBridge.exposeInMainWorld(
     'electron',
     {
-      doThing: () => ipcRenderer.send('do-a-thing')
+      doThing: () => win?.webContents.send('do-a-thing')
     }
   )
 });

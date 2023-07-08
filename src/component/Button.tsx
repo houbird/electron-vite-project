@@ -4,7 +4,7 @@ interface ButtonProps {
   onClick: () => void;
 }
 
-const Button: React.FC<ButtonProps> = ({ onClick }) => {
+const Button = ({ onClick }: ButtonProps) => {
   return <button onClick={onClick}>Run Command</button>;
 };
 
