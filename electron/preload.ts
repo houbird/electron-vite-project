@@ -3,14 +3,23 @@ import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld(
   'electron',
   {
-    exec: (command, callback) => {
-      ipcRenderer.send('exec-command', command);
-      ipcRenderer.once('exec-command-response', (event, { error, stdout, stderr }) => {
-        callback(error, stdout, stderr);
-      });
+    send: (channel, data) => {
+      // whitelist channels
+      let validChannels = ['exec-command'];
+      if (validChannels.includes(channel)) {
+        ipcRenderer.send(channel, data);
+      }
+    },
+    receive: (channel, func) => {
+      let validChannels = ['exec-command-response'];
+      if (validChannels.includes(channel)) {
+        // Deliberately strip event as it includes `sender` 
+        ipcRenderer.on(channel, (event, ...args) => func(...args));
+      }
     }
   }
-)
+);
+
 
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
   return new Promise(resolve => {
