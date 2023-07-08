@@ -1,22 +1,27 @@
-
 import React, { useEffect, useState } from 'react';
 import Button from './component/Button';
 
+interface Command {
+  id: string;
+  data: string;
+  useSudo: boolean;
+}
+
 const App = () => {
-  // username, modelName, and dockerPsOutput are all strings
   const [username, setUsername] = useState<string>('unknown Username');
   const [modelName, setModelName] = useState<string>('unknown ModelName');
-  const [dockerPsOutput, setDockerPsOutput] = useState<string>('');
+  const [dockerPsOutput, setDockerPsOutput] = useState<string>('Needed sudo to run docker ps');
 
-  // This function will be called when the button is clicked
   const handleButtonClick = (): void => {
     console.log('Button clicked');
-    window.electron.send('exec-command-1', 'exec-command', 'whoami');
-    window.electron.send('exec-command-2', 'exec-command', 'lscpu | grep "Model name"');
-    window.electron.send('exec-command-3', 'exec-command', 'sudo docker ps');    
+    const commands: Command[] = [
+      { id: 'exec-command-1', data: 'whoami', useSudo: false },
+      { id: 'exec-command-2', data: 'lscpu | grep "Model name"', useSudo: false },
+      { id: 'exec-command-3', data: 'docker images', useSudo: true }
+    ];
+    commands.forEach(command => window.electron.send('exec-command', command));
   };
 
-  // When the component mounts, register a listener for the response event
   useEffect(() => {
     console.log('App mounted');
     window.electron.receive('exec-command-response', (response: { id: string, error: Error, stdout: string, stderr: string }) => {

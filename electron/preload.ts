@@ -1,13 +1,19 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+interface Command {
+  id: string;
+  data: string;
+  useSudo: boolean;
+}
+
 contextBridge.exposeInMainWorld(
   'electron',
   {
-    send: (id: string,channel: string, data: any): void => {
+    send: (channel: string, command: Command): void => {
       // whitelist channels
       const validChannels = ['exec-command'];
       if (validChannels.includes(channel)) {
-        ipcRenderer.send(channel, { id, data });
+        ipcRenderer.send(channel, command);
       }
     },
     receive: (channel: string, func: (...args: unknown[]) => void): void => {

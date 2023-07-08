@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, contextBridge } from 'electron';
 import path from 'node:path';
 import sudo from 'sudo-prompt';
+import { exec } from 'child_process';
 
 process.env.DIST = path.join(__dirname, '../dist');
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
@@ -18,12 +19,14 @@ function createWindow() {
     },
   });
 
-  ipcMain.on('exec-command', (event, { id, data }) => {
+  ipcMain.on('exec-command', (event, { id, data, useSudo }) => {
     const options = {
       name: 'Electron',
     };
 
-    sudo.exec(data, options, (error, stdout, stderr) => {
+    const execFunc = useSudo ? sudo.exec : exec;
+
+    execFunc(data, options, (error, stdout, stderr) => {
       if (error) {
         event.reply('exec-command-response', { id, error, stdout, stderr });
       } else {
