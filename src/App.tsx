@@ -54,7 +54,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>React Electron App</h1>
+      <h1 className='text-red-900'>React Electron App</h1>
       <Button onClick={handleButtonClick} />
       <table border={1} width='100%'>
         <tbody>

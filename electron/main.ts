@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, contextBridge } from 'electron';
 import path from 'node:path';
 import sudo from 'sudo-prompt';
 import { exec } from 'child_process';
+import fs from 'fs';
 
 process.env.DIST = path.join(__dirname, '../dist');
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
@@ -53,5 +54,10 @@ app.whenReady().then(() => {
     {
       doThing: () => win?.webContents.send('do-a-thing')
     }
-  )
+  );
+  // 加载 Tailwind CSS 文件
+  win?.webContents.on('did-finish-load', () => {
+    const css = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
+    win?.webContents.insertCSS(css);
+  });
 });
