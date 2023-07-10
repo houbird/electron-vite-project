@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-interface Command {
+export interface Command {
   id: string;
   data: string;
   useSudo: boolean;
@@ -10,8 +10,9 @@ contextBridge.exposeInMainWorld(
   'electron',
   {
     send: (channel: string, command: Command): void => {
+      console.log('send', channel, command)
       // whitelist channels
-      const validChannels = ['exec-command'];
+      const validChannels = ['exec-command', 'close-window'];
       if (validChannels.includes(channel)) {
         ipcRenderer.send(channel, command);
       }
@@ -59,7 +60,7 @@ const safeDOM = {
  * https://projects.lukehaas.me/css-loaders
  * https://matejkustec.github.io/SpinThatShit
  */
-function useLoading() {
+function isLoading() {
   const className = `loaders-css__square-spin`
   const styleContent = `
 @keyframes square-spin {
@@ -108,7 +109,7 @@ function useLoading() {
     };
   }
   
-  const { appendLoading, removeLoading } = useLoading();
+  const { appendLoading, removeLoading } = isLoading();
   domReady().then(appendLoading);
   
   window.onmessage = (ev: MessageEvent): void => {

@@ -5,7 +5,7 @@ interface ButtonProps {
 }
 
 const Button = ({ onClick }: ButtonProps) => {
-  return <button onClick={onClick}>Run Command</button>;
+  return <button onClick={onClick}>Button</button>;
 };
 
 export default Button;
