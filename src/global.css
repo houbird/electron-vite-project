@@ -5,7 +5,6 @@
 :root {
   --primary-dark: #5651e5;
   --primary-light: #709dff;
-  --aetina: #A5CD38;
 }
 .no-select {
   -webkit-touch-callout: none; /* iOS Safari */
@@ -243,32 +242,11 @@
 /* declare default html-tag style*/
 @layer base {
   html {
-    @apply scroll-smooth;
-    font-family: 'Segoe UI', 'sans-serif', 'Microsoft JhengHei';
+    @apply scroll-smooth font-sans bg-bgPrimary text-textPrimary;
   }
-  .menu{
-    @apply z-50;
-    transition: .5s;
-    box-shadow: -3px 0 5px -1px rgb(0 0 0 / 50%);
-  }
-  .menu .title{
-    @apply overflow-hidden text-ellipsis;
-    color:rgb(17 24 39 / var(--tw-text-opacity));
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-  .menu li a{ @apply no-underline mb-0; }
-  .menu li.active::before{ @apply absolute z-50 inset-y-0 left-0 w-1 rounded-tr-md rounded-br-md bg-primaryColor; content: '';}
-  .menu ul li ul{ @apply mb-0 ml-0; }
-  .menu ul li ul li{ @apply pl-0; }
-  .menu ul li ul li::before{ @apply absolute mt-1 mb-1 inset-y-0 left-0 w-1 rounded-tr-md rounded-br-md bg-textPrimary bg-opacity-30; content: ''; }
-  .menu ul li ul li.active::before{ @apply bg-primaryColor bg-opacity-100; }
-  .menu ul li ul li a{ padding-left: 0.35rem; }
-  .menu ul li ul li a svg { @apply w-5 h-5; }
-  .navbar{ @apply flex sticky top-0 w-full z-20 bg-white shadow; }
-  .content-body{ @apply flex flex-auto flex-col container mx-auto text-secondary/90 py-6 px-6 z-10 ; }
-  footer{ @apply bg-white dark:bg-gray-800 text-gray-500 px-6 py-10 pb-6 z-10 relative flex flex-col content-center; }
+  .navbar{ @apply flex sticky top-0 w-full z-20; }
+  .content-body{ @apply flex flex-auto flex-col container mx-auto text-textPrimary px-6 z-10 ; }
+  footer{ @apply bg-white dark:bg-gray-800 text-gray-500 relative flex flex-col content-center; }
   .textPrimary{ @apply text-textPrimary }
   .secondary{ @apply text-secondary dark:text-secondary }
   .success{ @apply text-success dark:text-success }
@@ -315,7 +293,7 @@
   }
 
   button, button[type="button"], .btn {
-    @apply inline-block px-3 py-2 text-base leading-none rounded-md text-textPrimary cursor-pointer hover:opacity-80 no-underline border border-gray-300 no-select whitespace-nowrap;
+    @apply inline-block px-3 py-2 text-base leading-none rounded-md text-gray-300 cursor-pointer hover:opacity-80 no-underline border border-gray-700 no-select whitespace-nowrap;
   }
 
   .btn-primary, .btn-primary[type="button"] {
@@ -374,7 +352,7 @@
     @apply cursor-not-allowed bg-opacity-20;
   }
 
-  button svg{ @apply inline-block h-4 w-4 }
+  button svg{ @apply inline-block h-4 w-4 text-gray-200 }
 
   img {
     @apply mx-auto;
@@ -393,7 +371,7 @@
   }
 
   table {
-    @apply w-full border-collapse border border-gray-300;
+    @apply w-full border-collapse border border-gray-500;
   }
 
   caption {
@@ -404,15 +382,15 @@
     @apply p-2 font-bold bg-gray-100 border border-gray-300 whitespace-nowrap;
   }
   tbody tr:nth-child(even) {
-    @apply bg-gray-100;
+    @apply bg-gray-600;
   }
   tbody tr{
-    @apply hover:bg-gray-200;
+    @apply hover:bg-gray-500;
   }
 
 
   tbody td {
-    @apply p-2 border border-gray-300  whitespace-nowrap;
+    @apply p-2 border border-gray-700  whitespace-nowrap;
   }
   table .sticky-col {
     @apply sticky right-0 ;
